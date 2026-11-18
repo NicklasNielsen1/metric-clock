@@ -199,9 +199,9 @@ section { margin: 54px 0 0; }
 section h2 { font-size: 14px; }
 section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic; }
 .decade {
-  display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px;
+  display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px;
 }
-.decade.comp { grid-template-columns: repeat(6, 1fr); }
+.decade.comp { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .tile {
   position: relative;
   padding: 12px 6px 10px;
@@ -233,7 +233,22 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
 
 /* ---------- year wheel + facts ---------- */
 .yeargrid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; align-items: center; }
-#wheel { width: 100%; max-width: 500px; height: auto; display: block; margin: 0 auto; }
+#wheel { width: 100%; max-width: 500px; height: auto; display: block; margin: 0 auto; outline: none; user-select: none; -webkit-user-select: none; }
+#wheel:focus-visible { filter: drop-shadow(0 0 10px rgba(240,181,74,.6)); }
+#wheel .grab { cursor: grab; touch-action: none; }
+#wheel.dragging, #wheel.dragging .grab { cursor: grabbing; }
+.handle-dot { transition: r .15s; }
+#wheel .handle:hover .handle-dot, #wheel.dragging .handle-dot { r: 11; }
+.wheelbar { display: flex; justify-content: center; align-items: center; gap: 14px; min-height: 40px; margin-top: 10px; flex-wrap: wrap; }
+.hint { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: var(--blanc-dim); }
+.reset {
+  font-family: var(--mono); font-size: 13px; letter-spacing: .08em;
+  background: var(--rouge); color: var(--blanc); border: 0;
+  padding: 9px 16px; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(224,36,63,.35);
+}
+.reset:hover { background: var(--blanc); color: var(--ink); }
+.reset[hidden] { display: none; }
 .months { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 26px; }
 .months li { break-inside: avoid; padding: 5px 0 5px 12px; border-left: 3px solid; margin-bottom: 4px; font-size: 18px; }
 .months li b { font-family: var(--display); font-weight: 400; letter-spacing: .01em; }
@@ -306,10 +321,15 @@ footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); fon
   .cards { grid-template-columns: 1fr 1fr; }
   .history { columns: 1; }
   .machine { grid-template-columns: 1fr; }
-  .decade { grid-template-columns: repeat(5, 1fr); row-gap: 28px; }
-  .decade.comp { grid-template-columns: repeat(3, 1fr); }
+  .decade { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 28px; }
+  .decade.comp { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tile .d { letter-spacing: .02em; font-size: 9.5px; overflow: hidden; text-overflow: ellipsis; }
+  .tile .r { overflow-wrap: anywhere; }
   .tile { min-height: 104px; }
   .tile .n { font-size: 28px; }
+}
+@media (max-width: 520px) {
+  .scale span:nth-child(even) { visibility: hidden; } /* too many labels for a phone: show every other one */
 }
 @media (max-width: 440px) {
   body { font-size: 17px; }
@@ -374,7 +394,13 @@ footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); fon
   <section>
     <h2>The year, as a wheel of seasons</h2>
     <div class="yeargrid">
-      <svg id="wheel" viewBox="-230 -230 460 460" aria-label="Republican year wheel"></svg>
+      <div class="wheelbox">
+        <svg id="wheel" viewBox="-230 -230 460 460" tabindex="0" role="slider" aria-label="Day of the Republican year. Drag the red marker, or use the arrow keys."></svg>
+        <div class="wheelbar">
+          <span class="hint" id="wheelHint">Drag the red marker around the year</span>
+          <button class="reset" id="wheelReset" hidden>↺ Back to today</button>
+        </div>
+      </div>
       <ul class="months" id="months"></ul>
     </div>
   </section>
@@ -662,20 +688,23 @@ function arcPath(r0, r1, a0, a1) {
   const [x2, y2] = polar(r0, a1), [x3, y3] = polar(r0, a0);
   return `M ${x0} ${y0} A ${r1} ${r1} 0 ${large} 1 ${x1} ${y1} L ${x2} ${y2} A ${r0} ${r0} 0 ${large} 0 ${x3} ${y3} Z`;
 }
-function buildWheel(svg, r) {
+// r = today's Republican date. sel = the day of the year the marker points at (0-based).
+// moved = true when the marker has been dragged away from today.
+function buildWheel(svg, r, sel, moved) {
   svg.innerHTML = "";
   const perDay = 360 / r.len;
+  const selMonth = Math.floor(sel / 30);
   for (let i = 0; i < 13; i++) {
     const a0 = i * 30 * perDay, a1 = (i === 12 ? r.len : (i + 1) * 30) * perDay;
     const color = i === 12 ? "#e0243f" : SEASON_HEX[MONTHS[i][2]];
-    const isNow = i === r.month;
-    el("path", { d: arcPath(150, 214, a0 + .4, a1 - .4), fill: color, opacity: isNow ? 1 : .55,
-      stroke: isNow ? "#f3e9d2" : "none", "stroke-width": 2 }, svg);
+    const isSel = i === selMonth;
+    el("path", { class: "grab", d: arcPath(150, 214, a0 + .4, a1 - .4), fill: color, opacity: isSel ? 1 : .55,
+      stroke: isSel ? "#f3e9d2" : "none", "stroke-width": 2 }, svg);
     if (i < 12) {
       const mid = (a0 + a1) / 2;
       const [x, y] = polar(182, mid);
       const flip = mid > 90 && mid < 270;
-      const t = el("text", { x, y, "text-anchor": "middle", "dominant-baseline": "central",
+      const t = el("text", { class: "grab", x, y, "text-anchor": "middle", "dominant-baseline": "central",
         transform: `rotate(${flip ? mid + 180 : mid} ${x} ${y})`,
         "font-family": "Abril Fatface, serif", "font-size": 15, fill: "#0a0e22" }, svg);
       t.textContent = MONTHS[i][0];
@@ -691,18 +720,47 @@ function buildWheel(svg, r) {
   // progress arc
   const aNow = (r.doy + dayFraction(new Date())) * perDay;
   if (aNow > 0.5) el("path", { d: arcPath(118, 124, 0, aNow), fill: "#f0b54a" }, svg);
-  // marker
-  const [mx1, my1] = polar(112, aNow), [mx2, my2] = polar(222, aNow);
-  el("line", { x1: mx1, y1: my1, x2: mx2, y2: my2, stroke: "#e0243f", "stroke-width": 4, "stroke-linecap": "round" }, svg);
-  const [dx, dy] = polar(222, aNow);
-  el("circle", { cx: dx, cy: dy, r: 7, fill: "#e0243f", stroke: "#f3e9d2", "stroke-width": 2 }, svg);
-  // centre
-  const c1 = el("text", { x: 0, y: -24, "text-anchor": "middle", "font-family": "JetBrains Mono, monospace", "font-size": 11, "letter-spacing": 3, fill: "#f0b54a" }, svg);
-  c1.textContent = "JOUR";
-  const c2 = el("text", { x: 0, y: 22, "text-anchor": "middle", "font-family": "Abril Fatface, serif", "font-size": 58, fill: "#f3e9d2" }, svg);
-  c2.textContent = r.doy + 1;
-  const c3 = el("text", { x: 0, y: 50, "text-anchor": "middle", "font-family": "Cormorant Garamond, serif", "font-style": "italic", "font-size": 17, fill: "#b9ae96" }, svg);
-  c3.textContent = `of ${r.len} · ${r.leap ? "année sextile" : "ordinary year"}`;
+  // when the marker is away from today, leave a small gold "today" pointer behind
+  if (moved) {
+    const [tx1, ty1] = polar(108, aNow), [tx2, ty2] = polar(150, aNow);
+    el("line", { x1: tx1, y1: ty1, x2: tx2, y2: ty2, stroke: "#f0b54a", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+  }
+  // the draggable marker (a wide invisible line makes it easy to grab)
+  const aSel = moved ? (sel + 0.5) * perDay : aNow;
+  const handle = el("g", { class: "handle grab" }, svg);
+  const [mx1, my1] = polar(112, aSel), [mx2, my2] = polar(222, aSel);
+  el("line", { x1: mx1, y1: my1, x2: mx2, y2: my2, stroke: "transparent", "stroke-width": 30 }, handle);
+  el("line", { x1: mx1, y1: my1, x2: mx2, y2: my2, stroke: "#e0243f", "stroke-width": 4, "stroke-linecap": "round" }, handle);
+  el("circle", { class: "handle-dot", cx: mx2, cy: my2, r: 8, fill: "#e0243f", stroke: "#f3e9d2", "stroke-width": 2 }, handle);
+
+  // centre text
+  const text = (y, size, family, fill, content, extra = {}) => {
+    const t = el("text", { x: 0, y, "text-anchor": "middle", "font-family": family, "font-size": size, fill, ...extra }, svg);
+    t.textContent = content;
+  };
+  const MONO = "JetBrains Mono, monospace", DISP = "Abril Fatface, serif", SERIF = "Cormorant Garamond, serif";
+  if (!moved) {
+    text(-24, 11, MONO, "#f0b54a", "JOUR", { "letter-spacing": 3 });
+    text(22, 58, DISP, "#f3e9d2", r.doy + 1);
+    text(50, 17, SERIF, "#b9ae96", `of ${r.len} · ${r.leap ? "année sextile" : "ordinary year"}`, { "font-style": "italic" });
+  } else {
+    const d = wheelDay(r, sel);
+    const diff = sel - r.doy;
+    text(-46, 11, MONO, "#f0b54a", `JOUR ${sel + 1} · ${diff > 0 ? "+" : "−"}${Math.abs(diff)} ${Math.abs(diff) === 1 ? "DAY" : "DAYS"}`, { "letter-spacing": 2 });
+    text(-4, d.comp ? 26 : 38, DISP, "#f3e9d2", d.title);
+    text(24, 16, SERIF, "#f3e9d2", d.sub, { "font-weight": 700 });
+    text(46, 15, SERIF, "#b9ae96", d.greg, { "font-style": "italic" });
+  }
+}
+
+// What the wheel says about one day of the current Republican year.
+function wheelDay(r, doy) {
+  const month = Math.floor(doy / 30), day = doy % 30 + 1, comp = month === 12;
+  const n = newYearDay(r.year + 1791) + doy;
+  const greg = new Date(n * 86400000).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  return comp
+    ? { comp, title: COMP_SHORT[day - 1], sub: "Sansculottide · festival day", greg }
+    : { comp, title: `${day} ${MONTHS[month][0]}`, sub: `${DAYS[(day - 1) % 10]} · day of the ${RURAL[month][day - 1]}`, greg };
 }
 
 /* ================= PAGE ================= */
@@ -750,17 +808,80 @@ function renderDay(now) {
     }
   }
 
-  // month list
+  if (todayRep && todayRep.year !== r.year) wheelSel = null; // a new year began: start the wheel fresh
+  todayRep = r;
+  drawWheel();
+}
+
+/* ----- the year wheel: draggable marker ----- */
+let todayRep = null;
+let wheelSel = null; // chosen day of the year (0-based), or null = follow today
+
+function drawWheel() {
+  const r = todayRep;
+  const moved = wheelSel !== null && wheelSel !== r.doy;
+  const sel = moved ? wheelSel : r.doy;
+  buildWheel($("wheel"), r, sel, moved);
+
+  // month list: highlight the month the marker is in
+  const selMonth = Math.floor(sel / 30);
   const ul = $("months");
   ul.innerHTML = "";
   MONTHS.forEach(([name, meaning, season], i) => {
     ul.insertAdjacentHTML("beforeend",
-      `<li class="${i === r.month ? "now" : ""}" style="border-color:${SEASON_COLORS[season]}"><b>${name}</b><span>${meaning}</span></li>`);
+      `<li class="${i === selMonth ? "now" : ""}" style="border-color:${SEASON_COLORS[season]}"><b>${name}</b><span>${meaning}</span></li>`);
   });
   ul.insertAdjacentHTML("beforeend",
-    `<li class="${r.comp ? "now" : ""}" style="border-color:var(--rouge)"><b>Sansculottides</b><span>${r.len - 360} festival days</span></li>`);
-  buildWheel($("wheel"), r);
+    `<li class="${selMonth === 12 ? "now" : ""}" style="border-color:var(--rouge)"><b>Sansculottides</b><span>${r.len - 360} festival days</span></li>`);
+
+  $("wheelReset").hidden = !moved;
+  $("wheelHint").hidden = moved;
+  const w = $("wheel");
+  w.setAttribute("aria-valuemin", 1);
+  w.setAttribute("aria-valuemax", r.len);
+  w.setAttribute("aria-valuenow", sel + 1);
+  w.setAttribute("aria-valuetext", moved ? `${wheelDay(r, sel).title}, ${wheelDay(r, sel).greg}` : `Today, day ${sel + 1}`);
 }
+
+function setWheelDay(doy) {
+  const len = todayRep.len;
+  wheelSel = ((doy % len) + len) % len; // wrap around the year
+  drawWheel();
+}
+
+(() => {
+  const w = $("wheel");
+  let dragging = false;
+  // turn a pointer position into a day of the year (0 at the top, going clockwise)
+  function dayAt(e) {
+    const box = w.getBoundingClientRect();
+    const x = e.clientX - (box.left + box.width / 2);
+    const y = e.clientY - (box.top + box.height / 2);
+    let a = Math.atan2(x, -y) / RAD;
+    if (a < 0) a += 360;
+    return Math.min(todayRep.len - 1, Math.floor(a / 360 * todayRep.len));
+  }
+  w.addEventListener("pointerdown", e => {
+    if (!e.target.closest(".grab")) return; // only the ring and the marker, so the middle still scrolls on phones
+    dragging = true;
+    w.classList.add("dragging");
+    w.setPointerCapture(e.pointerId);
+    setWheelDay(dayAt(e));
+    e.preventDefault();
+  });
+  w.addEventListener("pointermove", e => { if (dragging) setWheelDay(dayAt(e)); });
+  const stop = () => { dragging = false; w.classList.remove("dragging"); };
+  w.addEventListener("pointerup", stop);
+  w.addEventListener("pointercancel", stop);
+  // keyboard: arrows = 1 day, Page Up/Down = 1 décade, Home or Escape = back to today
+  w.addEventListener("keydown", e => {
+    const cur = wheelSel ?? todayRep.doy;
+    const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 }[e.key];
+    if (step) { setWheelDay(cur + step); e.preventDefault(); }
+    else if (e.key === "Home" || e.key === "Escape") { wheelSel = null; drawWheel(); e.preventDefault(); }
+  });
+  $("wheelReset").addEventListener("click", () => { wheelSel = null; drawWheel(); });
+})();
 
 function tick() {
   const now = new Date();
