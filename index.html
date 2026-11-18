@@ -6,7 +6,7 @@
 <title>L'Heure Décimale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Cinzel:wght@400..900&family=GFS+Didot&family=IM+Fell+French+Canon:ital@0;1&family=Pinyon+Script&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    L'Heure Décimale — the French Republic's decimal time and
@@ -36,9 +36,20 @@
   --winter: #4a6fc4;
   --spring: #4f9a5a;
   --summer: #e8b04b;
+  /* Fonts of the 1790s:
+     Didot   - Firmin Didot's Paris typeface, the Republic's official print (title)
+     Bodoni  - Didot's Italian rival, same years; heavy for display, light for text
+     Cinzel  - Roman inscription capitals, like those carved on the Panthéon (labels)
+     IM Fell - a 17th-century face, used only on the "ancien régime" clock
+     Pinyon  - copperplate handwriting, as in hand-written decrees
+     JetBrains Mono stays for the digital readouts so the digits don't jiggle. */
   --mono: "JetBrains Mono", ui-monospace, monospace;
-  --serif: "Cormorant Garamond", Georgia, serif;
-  --display: "Abril Fatface", "Didot", Georgia, serif;
+  --serif: "Bodoni Moda", "Didot", Georgia, serif;
+  --display: "Bodoni Moda", "Didot", Georgia, serif;
+  --didot: "GFS Didot", "Didot", Georgia, serif;
+  --caps: "Cinzel", "Trajan Pro", Georgia, serif;
+  --fell: "IM Fell French Canon", Georgia, serif;
+  --script: "Pinyon Script", "Snell Roundhand", cursive;
 }
 * { box-sizing: border-box; }
 html { color-scheme: dark; }
@@ -78,7 +89,7 @@ header.mast {
   position: relative;
 }
 .motto {
-  font-family: var(--mono);
+  font-family: var(--caps);
   font-size: 12px;
   letter-spacing: .45em;
   text-transform: uppercase;
@@ -86,10 +97,10 @@ header.mast {
 }
 .motto s { color: var(--blanc-dim); text-decoration-color: var(--rouge); text-decoration-thickness: 2px; }
 h1 {
-  font-family: var(--display);
+  font-family: var(--didot);
   font-weight: 400;
   font-size: clamp(46px, 10vw, 128px);
-  line-height: .92;
+  line-height: 1;
   margin: 14px 0 6px;
   letter-spacing: -.01em;
   background: linear-gradient(180deg, var(--blanc) 30%, var(--or) 120%);
@@ -106,7 +117,7 @@ h1 em { font-style: normal; color: var(--rouge); -webkit-text-fill-color: var(--
   margin: 26px auto 8px;
 }
 .bigdate .dayname {
-  font-family: var(--mono); font-size: 14px; letter-spacing: .4em;
+  font-family: var(--caps); font-size: 14px; letter-spacing: .4em;
   text-transform: uppercase; color: var(--rouge);
 }
 .bigdate .repdate {
@@ -144,7 +155,7 @@ h1 em { font-style: normal; color: var(--rouge); -webkit-text-fill-color: var(--
 #decClock { max-width: 560px; filter: drop-shadow(0 20px 60px rgba(0,0,0,.6)); }
 #oldClock { max-width: 330px; opacity: .82; filter: saturate(.6) drop-shadow(0 10px 30px rgba(0,0,0,.5)); }
 .label {
-  font-family: var(--mono); font-size: 12px; letter-spacing: .35em;
+  font-family: var(--caps); font-size: 12px; letter-spacing: .35em;
   text-transform: uppercase; margin-top: 14px; color: var(--blanc-dim);
   position: relative; z-index: 1;
 }
@@ -162,9 +173,11 @@ h1 em { font-style: normal; color: var(--rouge); -webkit-text-fill-color: var(--
 .digital .sep { color: var(--rouge); }
 .tz { font-family: var(--mono); font-size: 13px; color: var(--blanc-dim); position: relative; z-index: 1; }
 .vs {
-  font-family: var(--display); font-size: 22px; color: var(--rouge);
-  margin: 4px 0 18px; position: relative; z-index: 1;
+  font-family: var(--script); font-size: 38px; line-height: 1; color: var(--rouge);
+  margin: 4px 0 14px; position: relative; z-index: 1;
 }
+/* the old clock speaks the old regime's typeface */
+.label.old { font-family: var(--fell); font-weight: 400; font-style: italic; font-size: 19px; letter-spacing: .04em; text-transform: none; }
 
 /* ---------- day progress ---------- */
 .progress {
@@ -175,7 +188,7 @@ h1 em { font-style: normal; color: var(--rouge); -webkit-text-fill-color: var(--
   border-radius: 4px;
 }
 .progress h3, section h2 {
-  font-family: var(--mono); font-weight: 400; font-size: 13px;
+  font-family: var(--caps); font-weight: 400; font-size: 13px;
   letter-spacing: .35em; text-transform: uppercase;
   color: var(--or); margin: 0 0 12px;
 }
@@ -213,7 +226,7 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
 }
 .tile:hover { transform: translateY(-3px); }
 .tile .n { font-family: var(--display); font-size: 34px; line-height: 1; }
-.tile .d { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--blanc-dim); margin-top: 6px; }
+.tile .d { font-family: var(--caps); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--blanc-dim); margin-top: 6px; }
 .tile .r { font-size: 15px; font-style: italic; margin-top: 6px; line-height: 1.15; }
 .tile.past { opacity: .45; }
 .tile.rest .n { color: var(--rouge); }
@@ -227,7 +240,7 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
 .tile.today .d { color: var(--rouge); font-weight: 700; }
 .tile.today::before {
   content: "aujourd'hui"; position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-  font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--rouge);
+  font-family: var(--caps); font-size: 10px; letter-spacing: .2em; color: var(--rouge);
   white-space: nowrap;
 }
 
@@ -240,9 +253,9 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
 .handle-dot { transition: r .15s; }
 #wheel .handle:hover .handle-dot, #wheel.dragging .handle-dot { r: 11; }
 .wheelbar { display: flex; justify-content: center; align-items: center; gap: 14px; min-height: 40px; margin-top: 10px; flex-wrap: wrap; }
-.hint { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: var(--blanc-dim); }
+.hint { font-family: var(--caps); font-size: 12px; letter-spacing: .12em; color: var(--blanc-dim); }
 .reset {
-  font-family: var(--mono); font-size: 13px; letter-spacing: .08em;
+  font-family: var(--caps); font-size: 13px; letter-spacing: .08em;
   background: var(--rouge); color: var(--blanc); border: 0;
   padding: 9px 16px; cursor: pointer;
   box-shadow: 0 6px 20px rgba(224,36,63,.35);
@@ -275,7 +288,7 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
     linear-gradient(135deg, rgba(37,70,168,.25), rgba(224,36,63,.18));
   position: relative;
 }
-.machine label { font-family: var(--mono); font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--or); display: block; margin-bottom: 8px; }
+.machine label { font-family: var(--caps); font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--or); display: block; margin-bottom: 8px; }
 .machine input {
   font-family: var(--mono); font-size: 20px;
   background: var(--ink); color: var(--blanc);
@@ -286,7 +299,7 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
 .machine .out small { display: block; font-family: var(--serif); font-size: 18px; font-style: italic; color: var(--blanc-dim); margin-top: 4px; }
 .quick { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
 .quick button {
-  font-family: var(--mono); font-size: 11.5px; letter-spacing: .05em;
+  font-family: var(--caps); font-size: 11.5px; letter-spacing: .05em;
   background: transparent; color: var(--blanc); border: 1px solid rgba(243,233,210,.35);
   padding: 6px 9px; cursor: pointer;
 }
@@ -299,7 +312,12 @@ section .lede { margin: -4px 0 18px; color: var(--blanc-dim); font-style: italic
   font-family: var(--display); float: left; font-size: 74px; line-height: .8;
   padding: 6px 10px 0 0; color: var(--rouge);
 }
-footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); font-size: 12px; color: var(--blanc-dim); letter-spacing: .15em; }
+footer { text-align: center; padding: 50px 0 40px; font-family: var(--script); font-size: 26px; color: var(--blanc-dim); }
+
+/* heavy Bodoni for everything big */
+.bigdate .repdate, .tile .n, .card .big, .machine .out, .history p:first-child::first-letter { font-weight: 900; }
+.months li b { font-weight: 800; }
+.tile .d, .hint, .reset, .quick button, .label, .motto, .bigdate .dayname { font-weight: 700; }
 
 /* ---------- cockade ---------- */
 .cockade { width: 74px; height: 74px; margin: 0 auto; display: block; animation: spinC 60s linear infinite; }
@@ -324,18 +342,21 @@ footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); fon
   .decade { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 28px; }
   .decade.comp { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tile .d { letter-spacing: .02em; font-size: 9.5px; overflow: hidden; text-overflow: ellipsis; }
-  .tile .r { overflow-wrap: anywhere; }
+  .tile .r { hyphens: auto; -webkit-hyphens: auto; } /* break long French names at proper syllables */
   .tile { min-height: 104px; }
   .tile .n { font-size: 28px; }
 }
 @media (max-width: 520px) {
-  .scale span:nth-child(even) { visibility: hidden; } /* too many labels for a phone: show every other one */
+  .scale span:nth-child(even) { display: none; } /* too many labels for a phone: show every other one */
+  .scale { font-size: 11px; }
 }
 @media (max-width: 440px) {
   body { font-size: 17px; }
   .months { columns: 1; }
   .cards { grid-template-columns: 1fr; }
-  .tile .r { font-size: 13px; }
+  .tile { padding: 10px 2px 8px; }
+  .tile .r { font-size: 12.5px; }
+  .tile .d { font-size: 7.5px; letter-spacing: 0; }
 }
 </style>
 </head>
@@ -370,7 +391,7 @@ footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); fon
     <div class="clockcard">
       <div class="vs">— versus —</div>
       <svg id="oldClock" viewBox="-210 -210 420 420" aria-label="Ordinary clock"></svg>
-      <div class="label">Ancien régime · your time</div>
+      <div class="label old">Ancien régime · your time</div>
       <div class="digital old" id="oldDigital">00:00:00</div>
       <div class="tz" id="oldDate">—</div>
       <div class="tz" id="tzName">—</div>
@@ -388,7 +409,7 @@ footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); fon
   <section>
     <h2 id="decTitle">La décade · this week of ten days</h2>
     <p class="lede" id="decLede">The seven-day week was abolished. Every tenth day, Décadi, was the day of rest. Every day was named after a plant, every fifth after an animal, every tenth after a farm tool.</p>
-    <div class="decade" id="decade"></div>
+    <div class="decade" id="decade" lang="fr"></div>
   </section>
 
   <section>
@@ -440,6 +461,7 @@ footer { text-align: center; padding: 50px 0 40px; font-family: var(--mono); fon
       <p>In 1793 the young French Republic set out to remake time itself. Weights and lengths were going decimal, so why not hours? A decree split the day into 10 hours of 100 minutes of 100 seconds. Clockmakers built dials with two rings of numbers, old and new, but almost nobody wanted to throw away their watch. Decimal time became compulsory in 1794 and was dropped only about six months later, in April 1795.</p>
       <p>The calendar lasted much longer. Year I was counted from 22 September 1792, the day after the monarchy was abolished, which also happened to be the autumn equinox. The poet Fabre d'Églantine named the months after the weather of the French countryside: the misty month, the snowy month, the windy month. He gave every single day a plant, animal, mineral or tool, replacing the saints' days of the old calendar.</p>
       <p>The ten-day week was unpopular: one rest day in ten instead of one in seven. Napoleon brought back the Gregorian calendar from 1 January 1806. It came back once more, for a few weeks, during the Paris Commune of 1871, which dated its decrees in Year LXXIX.</p>
+      <p>The lettering comes from the same years. The title is set in Didot, cut by Firmin Didot in Paris, the typeface of the Republic's official printing. The dates and numbers are in Bodoni, the work of his great rival in Parma. The small capitals copy the Roman inscriptions the Republic carved on its monuments. The old clock alone wears a 17th-century face, the letters of the old regime.</p>
       <p>This page keeps both systems running. Decimal time here is counted from your own local midnight, so your noon is exactly 5 decimal hours. The year starts on the day of the autumn equinox at the Paris Observatory, which is the original rule; the equinox is calculated with astronomical formulas, good to within a few minutes.</p>
     </div>
   </section>
@@ -626,7 +648,7 @@ function buildDecClock(svg) {
   for (let i = 1; i <= 10; i++) {
     const [x, y] = polar(126, i * 36);
     const t = el("text", { x, y, "text-anchor": "middle", "dominant-baseline": "central",
-      "font-family": "Abril Fatface, serif", "font-size": i === 10 ? 36 : 30,
+      "font-family": "Bodoni Moda, serif", "font-weight": 900, "font-size": i === 10 ? 36 : 30,
       fill: i === 10 ? "#e0243f" : "#f3e9d2" }, svg);
     t.textContent = i;
   }
@@ -637,10 +659,10 @@ function buildDecClock(svg) {
       "font-family": "JetBrains Mono, monospace", "font-size": 9, fill: "#b9ae96" }, svg);
     t.textContent = i * 10;
   }
-  const tag = el("text", { x: 0, y: 58, "text-anchor": "middle", "font-family": "JetBrains Mono, monospace",
+  const tag = el("text", { x: 0, y: 58, "text-anchor": "middle", "font-family": "Cinzel, serif", "font-weight": 700,
     "font-size": 10, "letter-spacing": 4, fill: "#f0b54a" }, svg);
   tag.textContent = "RÉPUBLIQUE";
-  const tag2 = el("text", { x: 0, y: 74, "text-anchor": "middle", "font-family": "Cormorant Garamond, serif",
+  const tag2 = el("text", { x: 0, y: 74, "text-anchor": "middle", "font-family": "Bodoni Moda, serif",
     "font-style": "italic", "font-size": 13, fill: "#b9ae96" }, svg);
   tag2.textContent = "an " + roman(repToday().year);
 
@@ -669,7 +691,7 @@ function buildOldClock(svg) {
   R.forEach((r, i) => {
     const [x, y] = polar(140, i * 30);
     const t = el("text", { x, y, "text-anchor": "middle", "dominant-baseline": "central",
-      "font-family": "Cormorant Garamond, serif", "font-weight": 700, "font-size": 30, fill: "#2b2a33" }, svg);
+      "font-family": "IM Fell French Canon, serif", "font-size": 33, fill: "#2b2a33" }, svg);
     t.textContent = r;
   });
   const hands = {
@@ -706,7 +728,7 @@ function buildWheel(svg, r, sel, moved) {
       const flip = mid > 90 && mid < 270;
       const t = el("text", { class: "grab", x, y, "text-anchor": "middle", "dominant-baseline": "central",
         transform: `rotate(${flip ? mid + 180 : mid} ${x} ${y})`,
-        "font-family": "Abril Fatface, serif", "font-size": 15, fill: "#0a0e22" }, svg);
+        "font-family": "Bodoni Moda, serif", "font-weight": 900, "font-size": 15, fill: "#0a0e22" }, svg);
       t.textContent = MONTHS[i][0];
     }
   }
@@ -735,10 +757,10 @@ function buildWheel(svg, r, sel, moved) {
 
   // centre text
   const text = (y, size, family, fill, content, extra = {}) => {
-    const t = el("text", { x: 0, y, "text-anchor": "middle", "font-family": family, "font-size": size, fill, ...extra }, svg);
+    const t = el("text", { x: 0, y, "text-anchor": "middle", "font-family": family, "font-size": size, "font-weight": family === DISP ? 900 : family === MONO ? 700 : 400, fill, ...extra }, svg);
     t.textContent = content;
   };
-  const MONO = "JetBrains Mono, monospace", DISP = "Abril Fatface, serif", SERIF = "Cormorant Garamond, serif";
+  const MONO = "Cinzel, serif", DISP = "Bodoni Moda, serif", SERIF = "'Bodoni Moda', serif"; // same font as DISP, but light weight
   if (!moved) {
     text(-24, 11, MONO, "#f0b54a", "JOUR", { "letter-spacing": 3 });
     text(22, 58, DISP, "#f3e9d2", r.doy + 1);
